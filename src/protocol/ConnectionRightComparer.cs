@@ -1,7 +1,7 @@
 /*
 This program is part of BruNet, a library for the creation of efficient overlay
 networks.
-Copyright (C) 2005  University of California
+Copyright (C) 2010 Taewoong Choi <twchoi@ufl.edu>,  University of California
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -57,11 +57,14 @@ namespace Brunet
       _zero = new AHAddress( MemBlock.Reference(binzero, 0, Address.MemSize) );
     }
 
-    public int Compare(Connection x, Connection y) {
-      return Compare((object) x, (object) y);
+    public int Compare(object x, object y)
+    {
+      Connection c_x = (Connection)x;
+      Connection c_y = (Connection)y;
+      return Compare(c_x, c_y);
     }
 
-    public int Compare(object x, object y)
+    public int Compare(Connection x, Connection y) 
     {
       //Equals is fast to check, lets do it before we
       //do more intense stuff :
@@ -69,11 +72,9 @@ namespace Brunet
         return 0;
       }
 
-      Connection c_x = (Connection)x;
-      Connection c_y = (Connection)y;
-      if ((c_x.Address is AHAddress) && (c_y.Address is AHAddress)) {
-        AHAddress add_x = (AHAddress) c_x.Address;
-        AHAddress add_y = (AHAddress) c_y.Address;
+      if ((x.Address is AHAddress) && (y.Address is AHAddress)) {
+        AHAddress add_x = (AHAddress) x.Address;
+        AHAddress add_y = (AHAddress) y.Address;
         /**
          * We compute the distances with the given zero
          * n_x - n_y = (n_x - n_z) - (n_y - n_z);
@@ -99,8 +100,8 @@ namespace Brunet
         /**
         * Just to make sure we can compare any type of address : 
         */
-        BigInteger bi_x = ((Address) c_x.Address).ToBigInteger();
-        BigInteger bi_y = ((Address) c_y.Address).ToBigInteger();
+        BigInteger bi_x = ((Address) x.Address).ToBigInteger();
+        BigInteger bi_y = ((Address) y.Address).ToBigInteger();
         if (bi_x > bi_y) {
           return 1;
         }
@@ -118,9 +119,9 @@ namespace Brunet
       AHAddress a1 = new AHAddress( Address.Full -2);
       AHAddress a2 = new AHAddress( Address.Half - 2);
       AHAddress a3 = new AHAddress( Address.Half + 2);
-      Connection c1 = new Connection(null, a1, "struectured",null,null);
-      Connection c2 = new Connection(null, a2, "struectured",null,null);
-      Connection c3 = new Connection(null, a3, "struectured",null,null);
+      Connection c1 = new Connection(null, a1, "structured",null,null);
+      Connection c2 = new Connection(null, a2, "structured",null,null);
+      Connection c3 = new Connection(null, a3, "structured",null,null);
       ConnectionRightComparer cmp = new ConnectionRightComparer();
       //The default zero is half, since a1 is half, it is zero,
       //the below should all be true:

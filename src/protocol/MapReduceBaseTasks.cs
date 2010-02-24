@@ -165,9 +165,9 @@ namespace Brunet {
       /// the farthest address from the start_addr.
       if (gen_list.Count < 2)  {
         BigInteger start_int = start_addr.ToBigInteger();
-	BigInteger end_int = start_int -2;
-	end_addr = new AHAddress(end_int);
-	end_range = end_addr.ToString();
+        BigInteger end_int = start_int -2;
+        end_addr = new AHAddress(end_int);
+        end_range = end_addr.ToString();
       }
       else {
         end_range = gen_list[1] as string;
@@ -180,25 +180,24 @@ namespace Brunet {
       ArrayList retval = new ArrayList();
 
       if (InRange(this_addr, start_addr, end_addr)) {
-	if (structs.Count > 0) {
+        if (structs.Count > 0) {
           //make connection list in the range.
           //left connection list is a list of neighbors which are in the range (this node, end of range)
           //right connection list is a list of neighbors which are in the range (start of range, this node)
           ArrayList cons = GetConnectionInfo(this_addr, start_addr, end_addr, structs);
           List<Connection> left_cons =  cons[0] as List<Connection>;
           List<Connection> right_cons = cons[1] as List<Connection>;
-	  //PrintConnectionList(left_cons);
-	  //PrintConnectionList(right_cons);
-	  retval = GenerateTreeInRange(this_addr, start_addr, end_addr, left_cons, true, mr_args);
-	  ArrayList ret_right = GenerateTreeInRange(this_addr, start_addr, end_addr, right_cons, false, mr_args);
-	  retval.AddRange(ret_right);
+          //PrintConnectionList(left_cons);
+          //PrintConnectionList(right_cons);
+          retval = GenerateTreeInRange(this_addr, start_addr, end_addr, left_cons, true, mr_args);
+          ArrayList ret_right = GenerateTreeInRange(this_addr, start_addr, end_addr, right_cons, false, mr_args);
+          retval.AddRange(ret_right);
 	}
-	else {  //this node is a leaf node.
+        else {  //this node is a leaf node.
           MapReduceInfo mr_info = null;
-	  retval.Add(mr_info);
+          retval.Add(mr_info);
 	  //Console.WriteLine("no connection in the range: return null info");
-	}
-	//Console.WriteLine("````````````retval.Count: {0}",retval.Count);
+        }
       }
       else { // _node is out of range. Just pass it to the closest to the middle of range.
         retval = GenerateTreeOutRange(start_addr, end_addr, mr_args);
@@ -219,63 +218,62 @@ namespace Brunet {
       if (cons.Count != 0) //make sure if connection list is not empty!
       {
         //con_list is sorted.
-	AHAddress last;
-	if (left) {
+        AHAddress last;
+        if (left) {
           last = end;
-	}
-	else {
+        }
+        else {
           last = start;
-	}
-	string rg_start, rg_end;
-	//the first element of cons is the nearest.
-	//Let's start with the farthest neighbor first.
+        }
+        string rg_start, rg_end;
+        //the first element of cons is the nearest.
+        //Let's start with the farthest neighbor first.
         //for (int i = 0; i < cons.Count; i++) {
         for (int i = (cons.Count-1); i >= 0; i--) {
-	  ArrayList gen_arg = new ArrayList();
-	  Connection next_c = (Connection)cons[i];
-	  AHAddress next_addr = (AHAddress)next_c.Address;
-	  ISender sender = (ISender) next_c.Edge;
-	  if (i==0) {  // The last bit
+          ArrayList gen_arg = new ArrayList();
+          Connection next_c = (Connection)cons[i];
+          AHAddress next_addr = (AHAddress)next_c.Address;
+          ISender sender = (ISender) next_c.Edge;
+          if (i==0) {  // The last bit
             if (left) {
-	      // the left nearest neighbor 
-	      rg_start = this_plus2.ToString();
-	      rg_end = last.ToString();
-	    }
-	    else {
-	      // the right nearest neighbor
-	      rg_start = last.ToString();
-	      rg_end = this_minus2.ToString();
-	    }
-	  }
-	  else {
-	    if (left) { //left connections
-	      rg_start = next_addr.ToString();
-	      rg_end = last.ToString();
-	    }
-	    else {  //right connections
-	      rg_start = last.ToString();
-	      rg_end = next_addr.ToString();
-	    }
-
-	  }
-	  gen_arg.Add(rg_start);
-	  gen_arg.Add(rg_end);
-	  MapReduceInfo mr_info = new MapReduceInfo( (ISender) sender,
-	 		                              new MapReduceArgs(this.TaskName,
-					               	             mr_args.MapArg,
-								     gen_arg,
-								     mr_args.ReduceArg));
+              // the left nearest neighbor 
+              rg_start = this_plus2.ToString();
+              rg_end = last.ToString();
+            }
+            else {
+              // the right nearest neighbor
+              rg_start = last.ToString();
+              rg_end = this_minus2.ToString();
+            }
+          }
+          else {
+            if (left) { //left connections
+              rg_start = next_addr.ToString();
+              rg_end = last.ToString();
+            }
+            else {  //right connections
+              rg_start = last.ToString();
+              rg_end = next_addr.ToString();
+            }
+          }
+          gen_arg.Add(rg_start);
+          gen_arg.Add(rg_end);
+          MapReduceInfo mr_info = new MapReduceInfo( (ISender) sender,
+                                                      new MapReduceArgs(this.TaskName,
+                                                                        mr_args.MapArg,
+                                                                        gen_arg,
+                                                                        mr_args.ReduceArg));
           Log("{0}: {1}, adding address: {2} to sender list, range start: {3}, range end: {4}",
-				    this.TaskName, _node.Address, next_c.Address,
-				    gen_arg[0], gen_arg[1]);
-	  if (left) {
+                                    this.TaskName, _node.Address, next_c.Address,
+                                    gen_arg[0], gen_arg[1]);
+          if (left) {
             last = new AHAddress(next_addr.ToBigInteger()-2);
-	  }
-	  else {
+          }
+          else {
             last = new AHAddress(next_addr.ToBigInteger()+2);
-	  }
-	  retval.Add(mr_info);
-	}
+          }
+          retval.Add(mr_info);
+        }
       }
       return retval;
     }    
@@ -290,26 +288,26 @@ namespace Brunet {
       BigInteger down = end.ToBigInteger();
       BigInteger mid_range = (up + down) /2;
       if (mid_range % 2 == 1) {mid_range = mid_range -1; }
-	AHAddress mid_addr = new AHAddress(mid_range);
-	if (!mid_addr.IsBetweenFromLeft(start, end) ) {
+        AHAddress mid_addr = new AHAddress(mid_range);
+        if (!mid_addr.IsBetweenFromLeft(start, end) ) {
           mid_range += Address.Half;
-	  mid_addr = new AHAddress(mid_range);
+          mid_addr = new AHAddress(mid_range);
       }
       ArrayList gen_arg = new ArrayList();
       if (NextGreedyClosest(mid_addr) != null ) {
         AHGreedySender ags = new AHGreedySender(_node, mid_addr);
-	string start_range = start.ToString();
-	string end_range = end.ToString();
-	gen_arg.Add(start_range);
-	gen_arg.Add(end_range);
+        string start_range = start.ToString();
+        string end_range = end.ToString();
+        gen_arg.Add(start_range);
+        gen_arg.Add(end_range);
         MapReduceInfo mr_info = new MapReduceInfo( (ISender) ags,
-				                new MapReduceArgs(this.TaskName,
-							          mr_args.MapArg,
-								  gen_arg,
-                                                                  mr_args.ReduceArg));
-	Log("{0}: {1}, out of range, moving to the closest node to mid_range: {2} to target node, range start: {3}, range end: {4}",
-			  this.TaskName, _node.Address, mid_addr, start, end);
-	retval.Add(mr_info);
+                                                    new MapReduceArgs(this.TaskName,
+                                                                      mr_args.MapArg,
+                                                                      gen_arg,
+                                                                      mr_args.ReduceArg));
+        Log("{0}: {1}, out of range, moving to the closest node to mid_range: {2} to target node, range start: {3}, range end: {4}",
+                                    this.TaskName, _node.Address, mid_addr, start, end);
+        retval.Add(mr_info);
       }
       else  {
         // cannot find a node in the range. 
@@ -384,10 +382,10 @@ namespace Brunet {
      */
     private void PrintConnectionList(List<Connection> l) {
       for(int i = 0; i < l.Count; i++) {
-	Connection c = (Connection)l[i];
-	AHAddress next_add = (AHAddress)c.Address;
-	AHAddress this_addr = (AHAddress)_node.Address;
-	BigInteger dist = this_addr.LeftDistanceTo(next_add);
+        Connection c = (Connection)l[i];
+        AHAddress next_add = (AHAddress)c.Address;
+        AHAddress this_addr = (AHAddress)_node.Address;
+        BigInteger dist = this_addr.LeftDistanceTo(next_add);
         Console.WriteLine("add: {0}, dis: {1}", next_add, dist);
       }
     }
